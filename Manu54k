@@ -8,7 +8,7 @@
   "ContatoImg": "https://telegra.ph/file/ef4a0d2668af585a39939.png",
   "ContatoUrl": "https://t.me/ManuGOYT",
   "SiteImg": "https://telegra.ph/file/f05adce32454822c5fbe0.png",
-  "SiteUrl": "https://fast.com/es/",
+  "SiteUrl": "https://www.speedtest.net/es",
   "ApnImg": "https://telegra.ph/file/7c63c649a98dd10535047.png",
   "LogsImg": "https://telegra.ph/file/55380e49b5b2c94e748cc.png",
   "Servers": [
@@ -24,97 +24,6 @@
       "PASS": "",
       "CheckUser": "",
       "Info": "Direct"
-    },
-    {
-      "Name": "vivo [02] proxy || front roubada",
-      "ServerIP": "d1gphpzwiqhhvr.cloudfront.net",
-      "ServerPort": "443",
-      "Payload": "GET / HTTP/1.1[crlf]Host: [host][crlf]Connection: Upgrade[crlf]Upgrade: Websocket[crlf][crlf]",
-      "ProxyIP": "108.139.113.33",
-      "ProxyPort": "80",
-      "SNI": "",
-      "USER": "",
-      "PASS": "",
-      "CheckUser": "http://lmsk.store:5000/checkUser",
-      "Info": "Proxy"
-    },
-    {
-      "Name": "vivo [02] proxy || front roubada",
-      "ServerIP": "d1gphpzwiqhhvr.cloudfront.net",
-      "ServerPort": "443",
-      "Payload": "GET / HTTP/1.1[crlf]Host: [host][crlf]Connection: Upgrade[crlf]Upgrade: Websocket[crlf][crlf]",
-      "ProxyIP": "108.139.113.33",
-      "ProxyPort": "80",
-      "SNI": "",
-      "USER": "",
-      "PASS": "",
-      "CheckUser": "http://lmsk.store:5000/checkUser",
-      "Info": "Proxy"
-    },
-    {
-      "Name": "vivo [02] proxy || front roubada",
-      "ServerIP": "d1gphpzwiqhhvr.cloudfront.net",
-      "ServerPort": "443",
-      "Payload": "GET / HTTP/1.1[crlf]Host: [host][crlf]Connection: Upgrade[crlf]Upgrade: Websocket[crlf][crlf]",
-      "ProxyIP": "108.139.113.33",
-      "ProxyPort": "80",
-      "SNI": "",
-      "USER": "",
-      "PASS": "",
-      "CheckUser": "http://lmsk.store:5000/checkUser",
-      "Info": "Proxy"
-    },
-    {
-      "Name": "vivo [02] proxy || front roubada",
-      "ServerIP": "d1gphpzwiqhhvr.cloudfront.net",
-      "ServerPort": "443",
-      "Payload": "GET / HTTP/1.1[crlf]Host: [host][crlf]Connection: Upgrade[crlf]Upgrade: Websocket[crlf][crlf]",
-      "ProxyIP": "108.139.113.33",
-      "ProxyPort": "80",
-      "SNI": "",
-      "USER": "",
-      "PASS": "",
-      "CheckUser": "http://lmsk.store:5000/checkUser",
-      "Info": "Proxy"
-    },
-    {
-      "Name": "vivo [02] proxy || front roubada",
-      "ServerIP": "d1gphpzwiqhhvr.cloudfront.net",
-      "ServerPort": "443",
-      "Payload": "GET / HTTP/1.1[crlf]Host: [host][crlf]Connection: Upgrade[crlf]Upgrade: Websocket[crlf][crlf]",
-      "ProxyIP": "108.139.113.33",
-      "ProxyPort": "80",
-      "SNI": "",
-      "USER": "",
-      "PASS": "",
-      "CheckUser": "http://lmsk.store:5000/checkUser",
-      "Info": "Proxy"
-    },
-    {
-      "Name": "vivo [02] proxy || front roubada",
-      "ServerIP": "d1gphpzwiqhhvr.cloudfront.net",
-      "ServerPort": "443",
-      "Payload": "GET / HTTP/1.1[crlf]Host: [host][crlf]Connection: Upgrade[crlf]Upgrade: Websocket[crlf][crlf]",
-      "ProxyIP": "108.139.113.33",
-      "ProxyPort": "80",
-      "SNI": "",
-      "USER": "",
-      "PASS": "",
-      "CheckUser": "http://lmsk.store:5000/checkUser",
-      "Info": "Proxy"
-    },
-    {
-      "Name": "vivo [02] proxy || front roubada",
-      "ServerIP": "d1gphpzwiqhhvr.cloudfront.net",
-      "ServerPort": "443",
-      "Payload": "GET / HTTP/1.1[crlf]Host: [host][crlf]Connection: Upgrade[crlf]Upgrade: Websocket[crlf][crlf]",
-      "ProxyIP": "108.139.113.33",
-      "ProxyPort": "80",
-      "SNI": "",
-      "USER": "",
-      "PASS": "",
-      "CheckUser": "http://lmsk.store:5000/checkUser",
-      "Info": "Proxy"
     }
   ]
 }
