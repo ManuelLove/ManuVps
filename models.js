@@ -57,7 +57,7 @@ const models = {
       onlyprefix: '+',
       owners: ['573012686632'],
       lastReset: new Date * 1,
-      msg: 'Hi +tag 🪸\nSoy un sistema automatizado (Bot de WhatsApp) que puede ayudarte a hacer algo, buscar y obtener datos / información solo a través de WhatsApp.\n\n◦ *Módulo* : +module\n◦ *Base de datos* : +db\n◦ *Biblioteca* : Baileys v+version\n◦ *API Rest* : https://api\n◦ *Fuente* : https://github.com/\n\nSi encuentras un error o deseas actualizar al plan premium, contacta al owner.',
+      msg: 'Hi +tag 🪸\nSoy un sistema automatizado (Bot de WhatsApp) que puede ayudarte a hacer algo, buscar y obtener datos / información solo a través de WhatsApp.\n\n◦ *Módulo* : +module\n◦ *Base de datos* : +db\n◦ *Biblioteca* : Baileys v+version\n◦ *API Rest* : https://api\n◦ *Fuente* : https://github.com\n\nSi encuentras un error o deseas actualizar al plan premium, contacta al owner.',
       style: 4,
       cover: 'https://i.ibb.co/tTCHsX02/shoNhe.jpg',
       link: 'https://chat.whatsapp.com/LeyQI5YKnAK7QDTC6n2X3I'
