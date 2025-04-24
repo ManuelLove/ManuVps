@@ -307,7 +307,7 @@ exports.run = {
                      sections
                   })
                }]
-               client.sendIAMessage(m.chat, buttons, print + '\n\n' + global.footer m, {
+               client.sendIAMessage(m.chat, buttons, print + '\n\n' + global.footer, m, {
                   header: '',
                   content: print,
                   footer: global.footer,
