@@ -313,7 +313,6 @@ exports.run = {
   footer: global.footer,
   buttons: buttons,
   headerType: 4 // o el tipo que uses normalmente
-}, { quoted: m })
                })
             }
          }
