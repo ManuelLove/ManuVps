@@ -307,8 +307,8 @@ exports.run = {
                      sections
                   })
                }]
-               client.sendIAMessage(m.chat, buttons, Func.jsonFormat(json), m, {
-                  header: '',
+               client.sendIAMessage(m.chat, buttons, m, {
+                  header: global.header,
                   content: print,
                   footer: global.footer,
                   media: setting.cover
