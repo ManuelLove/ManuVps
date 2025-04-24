@@ -307,12 +307,11 @@ exports.run = {
                      sections
                   })
                }]
-               client.sendMessage(m.chat, {
-  image: setting.cover,
-  caption: `${global.header}\n\n${print}`,
-  footer: global.footer,
-  buttons: buttons,
-  headerType: 4 // o el tipo que uses normalmente
+               client.sendIAMessage(m.chat, buttons, print + '\n\n' + global.footer m, {
+                  header: '',
+                  content: print,
+                  footer: global.footer,
+                  media: setting.cover
                })
             }
          }
