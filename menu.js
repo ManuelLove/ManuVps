@@ -308,7 +308,7 @@ exports.run = {
                   })
                }]
                client.sendIAMessage(m.chat, buttons, m, {
-                  header: global.header,
+                  header: '',
                   content: print,
                   footer: global.footer,
                   media: setting.cover
