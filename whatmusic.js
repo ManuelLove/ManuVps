@@ -1,3 +1,4 @@
+const path = require('path');
 exports.run = {
    usage: ['whatmusic'],
    use: 'query',
