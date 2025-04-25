@@ -43,11 +43,6 @@ exports.run = {
          if (!res.data.status || !res.data.data) throw new Error('No se pudo identificar la canción')
          const { title, artist, album, release } = res.data.data
 
-         // Usar la API de búsqueda de YouTube (reemplaza yts)
-         // Datos del resultado de whatmusic
-const info = json.data
-let query = `${info.title} ${info.artist}`
-
 // Primer intento con título + artista
 let yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(query)}&apikey=russellxz`)
 if (!yt.data.status || !yt.data.data || !yt.data.data.url) {
