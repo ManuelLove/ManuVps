@@ -48,7 +48,7 @@ exports.run = {
             await streamPipeline(stream, fs.createWriteStream(inputPath))
          }
 
-         // Usar Api.neoxr para obtener la información del archivo de YouTube
+         // Usar una URL temporal para la subida de archivo
          const form = new FormData()
          form.append('file', fs.createReadStream(inputPath))
          form.append('expiry', '3600')
@@ -58,12 +58,13 @@ exports.run = {
 
          const fileUrl = upload.data.url
          const apiURL = `https://api.neoxr.eu/api/whatmusic?url=${encodeURIComponent(fileUrl)}&apikey=russellxz`
-         const res = await axios.get(apiURL)
 
+         // Intentar obtener la información de la canción
+         const res = await axios.get(apiURL)
          if (!res.data.status || !res.data.data || !res.data.data.url) {
             throw new Error('No se pudo identificar la canción, URL de audio/video no encontrada')
          }
-         
+
          const { title, artist, album, release, url } = res.data.data
 
          let caption = `乂  *W H A T - M U S I C*\n\n`
@@ -78,9 +79,13 @@ exports.run = {
             thumbnail: res.data.thumbnail
          })
 
-         // Descargar el audio o video desde YouTube usando la API de neoxr
+         // Descargar el audio o video desde YouTube usando la URL proporcionada
          const ytRes = await axios.get(`https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(url)}&type=audio&quality=128kbps&apikey=russellxz`)
          const audioURL = ytRes.data.data.url
+
+         if (!audioURL) {
+            throw new Error('No se pudo obtener la URL del audio de YouTube')
+         }
 
          const rawPath = path.join(tmpDir, `${Date.now()}_raw.m4a`)
          const finalPath = path.join(tmpDir, `${Date.now()}_final.mp3`)
