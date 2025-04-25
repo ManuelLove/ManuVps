@@ -1,13 +1,3 @@
-const fs = require('fs')
-const path = require('path')
-const axios = require('axios')
-const ffmpeg = require('fluent-ffmpeg')
-const FormData = require('form-data')
-const { promisify } = require('util')
-const { pipeline } = require('stream')
-
-const streamPipeline = promisify(pipeline)
-
 exports.run = {
    usage: ['whatmusic'],
    use: 'query',
@@ -17,14 +7,19 @@ exports.run = {
          if (!m.quoted || !/audio|video/.test(m.quoted.mtype)) return client.reply(m.chat, '✳️ Responde a un *audio*, *nota de voz* o *video* para identificar la canción.', m)
          client.sendReact(m.chat, '🔍', m.key)
 
+         // Crea el directorio temporal si no existe
          const tmpDir = path.join(__dirname, '../tmp')
          if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
+         
+         // Determina si el archivo es audio o video
          const isAudio = m.quoted.mtype.includes('audio')
          const inputPath = path.join(tmpDir, `${Date.now()}.${isAudio ? 'mp3' : 'mp4'}`)
 
+         // Descarga el archivo del mensaje citado (audio o video)
          const stream = await m.quoted.download()
          await streamPipeline(stream, fs.createWriteStream(inputPath))
 
+         // Resto de tu lógica de procesamiento (subir archivo, obtener info, etc.)
          const form = new FormData()
          form.append('file', fs.createReadStream(inputPath))
          form.append('expiry', '3600')
@@ -61,10 +56,7 @@ exports.run = {
          })
 
          const ytRes = await axios.get(`https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(video.url)}&type=audio&quality=128kbps&apikey=russellxz`)
-if (!ytRes.data || !ytRes.data.data || !ytRes.data.data.url) {
-   throw new Error('No se pudo obtener la URL del audio')
-}
-const audioURL = ytRes.data.data.url
+         const audioURL = ytRes.data.data.url
 
          const rawPath = path.join(tmpDir, `${Date.now()}_raw.m4a`)
          const finalPath = path.join(tmpDir, `${Date.now()}_final.mp3`)
