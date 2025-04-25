@@ -45,7 +45,6 @@ exports.run = {
 
          // Usar la API de búsqueda de YouTube (reemplaza yts)
          const yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(title + ' ' + artist)}&apikey=russellxz`)
-const video = yt.data
          if (!yt.status || !yt.data || !yt.data.url) throw new Error('No se encontró la canción en YouTube')
 
          const video = yt
