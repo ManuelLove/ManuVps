@@ -1,12 +1,12 @@
-const fs = require('fs');
-const path = require('path'); // Asegúrate de importar path
-const axios = require('axios');
-const ffmpeg = require('fluent-ffmpeg');
-const FormData = require('form-data');
-const { promisify } = require('util');
-const { pipeline } = require('stream');
+const fs = require('fs')
+const path = require('path')
+const axios = require('axios')
+const ffmpeg = require('fluent-ffmpeg')
+const FormData = require('form-data')
+const { promisify } = require('util')
+const { pipeline } = require('stream')
 
-const streamPipeline = promisify(pipeline);
+const streamPipeline = promisify(pipeline)
 
 exports.run = {
    usage: ['whatmusic'],
@@ -17,62 +17,69 @@ exports.run = {
          if (!m.quoted || !/audio|video/.test(m.quoted.mtype)) return client.reply(m.chat, '✳️ Responde a un *audio*, *nota de voz* o *video* para identificar la canción.', m)
          client.sendReact(m.chat, '🔍', m.key)
 
-         // Crea el directorio temporal si no existe
-         const tmpDir = path.join(__dirname, '../tmp');
-         if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
-         
-         // Determina si el archivo es audio o video
-         const isAudio = m.quoted.mtype.includes('audio');
-         const inputPath = path.join(tmpDir, `${Date.now()}.${isAudio ? 'mp3' : 'mp4'}`);
+         const tmpDir = path.join(__dirname, '../tmp')
+         if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
+         const isAudio = m.quoted.mtype.includes('audio')
+         const inputPath = path.join(tmpDir, `${Date.now()}.${isAudio ? 'mp3' : 'mp4'}`)
 
-         // Descarga el archivo del mensaje citado (audio o video)
-         const stream = await m.quoted.download();
-         await streamPipeline(stream, fs.createWriteStream(inputPath));
+         const stream = await m.quoted.download()
 
-         // Resto de tu lógica de procesamiento (subir archivo, obtener info, etc.)
-         const form = new FormData();
-         form.append('file', fs.createReadStream(inputPath));
-         form.append('expiry', '3600');
+         // Verificar si el archivo es un Buffer o Stream
+         if (!stream || !(stream instanceof Buffer) && !stream.pipe) {
+            return client.reply(m.chat, '❌ El archivo descargado no es un buffer o stream válido', m)
+         }
 
-         const upload = await axios.post('https://cdn.russellxz.click/upload.php', form, { headers: form.getHeaders() });
-         if (!upload.data || !upload.data.url) throw new Error('No se pudo subir el archivo');
+         // Si es un Buffer, guardarlo directamente
+         if (Buffer.isBuffer(stream)) {
+            fs.writeFileSync(inputPath, stream)
+         } else {
+            // Si es un stream, usar streamPipeline para escribirlo
+            await streamPipeline(stream, fs.createWriteStream(inputPath))
+         }
 
-         const fileUrl = upload.data.url;
-         const apiURL = `https://api.neoxr.eu/api/whatmusic?url=${encodeURIComponent(fileUrl)}&apikey=russellxz`;
-         const res = await axios.get(apiURL);
+         const form = new FormData()
+         form.append('file', fs.createReadStream(inputPath))
+         form.append('expiry', '3600')
 
-         if (!res.data.status || !res.data.data) throw new Error('No se pudo identificar la canción');
-         const { title, artist, album, release } = res.data.data;
+         const upload = await axios.post('https://cdn.russellxz.click/upload.php', form, { headers: form.getHeaders() })
+         if (!upload.data || !upload.data.url) throw new Error('No se pudo subir el archivo')
 
-         const yt = await yts(`${title} ${artist}`);
-         const video = yt.videos[0];
-         if (!video) throw new Error("No se encontró la canción en YouTube");
+         const fileUrl = upload.data.url
+         const apiURL = `https://api.neoxr.eu/api/whatmusic?url=${encodeURIComponent(fileUrl)}&apikey=russellxz`
+         const res = await axios.get(apiURL)
 
-         let caption = `乂  *W H A T - M U S I C*\n\n`;
-         caption += `◦  *Título* : ${title}\n`;
-         caption += `◦  *Artista* : ${artist}\n`;
-         caption += `◦  *Álbum* : ${album || '-'}\n`;
-         caption += `◦  *Lanzamiento* : ${release || '-'}\n`;
-         caption += `◦  *YouTube* : ${video.title}\n`;
-         caption += `◦  *Duración* : ${video.timestamp}\n`;
-         caption += `◦  *Vistas* : ${video.views.toLocaleString()}\n`;
-         caption += `◦  *Canal* : ${video.author.name}\n`;
-         caption += `◦  *Link* : ${video.url}\n\n`;
-         caption += global.footer;
+         if (!res.data.status || !res.data.data) throw new Error('No se pudo identificar la canción')
+         const { title, artist, album, release } = res.data.data
+
+         const yt = await yts(`${title} ${artist}`)
+         const video = yt.videos[0]
+         if (!video) throw new Error("No se encontró la canción en YouTube")
+
+         let caption = `乂  *W H A T - M U S I C*\n\n`
+         caption += `◦  *Título* : ${title}\n`
+         caption += `◦  *Artista* : ${artist}\n`
+         caption += `◦  *Álbum* : ${album || '-'}\n`
+         caption += `◦  *Lanzamiento* : ${release || '-'}\n`
+         caption += `◦  *YouTube* : ${video.title}\n`
+         caption += `◦  *Duración* : ${video.timestamp}\n`
+         caption += `◦  *Vistas* : ${video.views.toLocaleString()}\n`
+         caption += `◦  *Canal* : ${video.author.name}\n`
+         caption += `◦  *Link* : ${video.url}\n\n`
+         caption += global.footer
 
          client.sendMessageModify(m.chat, caption, m, {
             largeThumb: true,
             thumbnail: video.thumbnail
-         });
+         })
 
-         const ytRes = await axios.get(`https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(video.url)}&type=audio&quality=128kbps&apikey=russellxz`);
-         const audioURL = ytRes.data.data.url;
+         const ytRes = await axios.get(`https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(video.url)}&type=audio&quality=128kbps&apikey=russellxz`)
+         const audioURL = ytRes.data.data.url
 
-         const rawPath = path.join(tmpDir, `${Date.now()}_raw.m4a`);
-         const finalPath = path.join(tmpDir, `${Date.now()}_final.mp3`);
+         const rawPath = path.join(tmpDir, `${Date.now()}_raw.m4a`)
+         const finalPath = path.join(tmpDir, `${Date.now()}_final.mp3`)
 
-         const audioRes = await axios.get(audioURL, { responseType: 'stream' });
-         await streamPipeline(audioRes.data, fs.createWriteStream(rawPath));
+         const audioRes = await axios.get(audioURL, { responseType: 'stream' })
+         await streamPipeline(audioRes.data, fs.createWriteStream(rawPath))
 
          await new Promise((resolve, reject) => {
             ffmpeg(rawPath)
@@ -80,32 +87,32 @@ exports.run = {
                .audioBitrate('128k')
                .save(finalPath)
                .on('end', resolve)
-               .on('error', reject);
-         });
+               .on('error', reject)
+         })
 
-         const chSize = Func.sizeLimit(fs.statSync(finalPath).size, users.premium ? env.max_upload : env.max_upload_free);
+         const chSize = Func.sizeLimit(fs.statSync(finalPath).size, users.premium ? env.max_upload : env.max_upload_free)
          if (chSize.oversize) {
-            fs.unlinkSync(inputPath);
-            fs.unlinkSync(rawPath);
-            fs.unlinkSync(finalPath);
-            return client.reply(m.chat, `⚠️ El archivo es muy grande. Límite actual: ${users.premium ? env.max_upload : env.max_upload_free} MB`, m);
+            fs.unlinkSync(inputPath)
+            fs.unlinkSync(rawPath)
+            fs.unlinkSync(finalPath)
+            return client.reply(m.chat, `⚠️ El archivo es muy grande. Límite actual: ${users.premium ? env.max_upload : env.max_upload_free} MB`, m)
          }
 
          await client.sendFile(m.chat, finalPath, `${title}.mp3`, '', m, {
             document: true,
             mimetype: 'audio/mpeg'
-         });
+         })
 
-         [inputPath, rawPath, finalPath].forEach(file => fs.existsSync(file) && fs.unlinkSync(file));
-         client.sendReact(m.chat, '✅', m.key);
+         [inputPath, rawPath, finalPath].forEach(file => fs.existsSync(file) && fs.unlinkSync(file))
+         client.sendReact(m.chat, '✅', m.key)
 
       } catch (e) {
-         client.reply(m.chat, `❌ *Error:* ${e.message}`, m);
-         client.sendReact(m.chat, '❌', m.key);
+         client.reply(m.chat, `❌ *Error:* ${e.message}`, m)
+         client.sendReact(m.chat, '❌', m.key)
       }
    },
    error: false,
    restrict: true,
    cache: false,
    location: __filename
-};
+}
