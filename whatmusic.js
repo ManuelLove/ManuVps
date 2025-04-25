@@ -1,4 +1,13 @@
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
+const axios = require('axios')
+const ffmpeg = require('fluent-ffmpeg')
+const FormData = require('form-data')
+const { promisify } = require('util')
+const { pipeline } = require('stream')
+
+const streamPipeline = promisify(pipeline)
+
 exports.run = {
    usage: ['whatmusic'],
    use: 'query',
