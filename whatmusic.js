@@ -12,11 +12,23 @@ exports.run = {
    usage: ['whatmusic'],
    use: 'query',
    category: 'downloader',
-   async: async (m, { client, Func, users, env }) => {
+   async: async (m, { 
+      client, 
+      args, 
+      isPrefix, 
+      command, 
+      users, 
+      env, 
+      Func 
+   }) => {
       try {
-         if (!m.quoted || !/audio|video/.test(m.quoted.mtype)) return client.reply(m.chat, '✳️ Responde a un *audio*, *nota de voz* o *video* para identificar la canción.', m)
+         if (!m.quoted || !/audio|video/.test(m.quoted.mtype)) {
+            return client.reply(m.chat, '✳️ Responde a un *audio*, *nota de voz* o *video* para identificar la canción.', m)
+         }
+
          client.sendReact(m.chat, '🔍', m.key)
 
+         // Descargar archivo de la cita (audio o video)
          const tmpDir = path.join(__dirname, '../tmp')
          if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
          const isAudio = m.quoted.mtype.includes('audio')
@@ -24,19 +36,19 @@ exports.run = {
 
          const stream = await m.quoted.download()
 
-         // Verificar si el archivo es un Buffer o Stream
+         // Verificar si es un Buffer o un Stream
          if (!stream || !(stream instanceof Buffer) && !stream.pipe) {
             return client.reply(m.chat, '❌ El archivo descargado no es un buffer o stream válido', m)
          }
 
-         // Si es un Buffer, guardarlo directamente
+         // Guardar archivo en disco
          if (Buffer.isBuffer(stream)) {
             fs.writeFileSync(inputPath, stream)
          } else {
-            // Si es un stream, usar streamPipeline para escribirlo
             await streamPipeline(stream, fs.createWriteStream(inputPath))
          }
 
+         // Usar Api.neoxr para obtener la información del archivo de YouTube
          const form = new FormData()
          form.append('file', fs.createReadStream(inputPath))
          form.append('expiry', '3600')
@@ -51,28 +63,20 @@ exports.run = {
          if (!res.data.status || !res.data.data) throw new Error('No se pudo identificar la canción')
          const { title, artist, album, release } = res.data.data
 
-         const yt = await yts(`${title} ${artist}`)
-         const video = yt.videos[0]
-         if (!video) throw new Error("No se encontró la canción en YouTube")
-
          let caption = `乂  *W H A T - M U S I C*\n\n`
          caption += `◦  *Título* : ${title}\n`
          caption += `◦  *Artista* : ${artist}\n`
          caption += `◦  *Álbum* : ${album || '-'}\n`
-         caption += `◦  *Lanzamiento* : ${release || '-'}\n`
-         caption += `◦  *YouTube* : ${video.title}\n`
-         caption += `◦  *Duración* : ${video.timestamp}\n`
-         caption += `◦  *Vistas* : ${video.views.toLocaleString()}\n`
-         caption += `◦  *Canal* : ${video.author.name}\n`
-         caption += `◦  *Link* : ${video.url}\n\n`
+         caption += `◦  *Lanzamiento* : ${release || '-'}\n\n`
          caption += global.footer
 
          client.sendMessageModify(m.chat, caption, m, {
             largeThumb: true,
-            thumbnail: video.thumbnail
+            thumbnail: res.data.thumbnail
          })
 
-         const ytRes = await axios.get(`https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(video.url)}&type=audio&quality=128kbps&apikey=russellxz`)
+         // Descargar el audio o video desde YouTube usando la API de neoxr
+         const ytRes = await axios.get(`https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(res.data.data.url)}&type=audio&quality=128kbps&apikey=russellxz`)
          const audioURL = ytRes.data.data.url
 
          const rawPath = path.join(tmpDir, `${Date.now()}_raw.m4a`)
@@ -81,6 +85,7 @@ exports.run = {
          const audioRes = await axios.get(audioURL, { responseType: 'stream' })
          await streamPipeline(audioRes.data, fs.createWriteStream(rawPath))
 
+         // Convertir a MP3 con FFmpeg
          await new Promise((resolve, reject) => {
             ffmpeg(rawPath)
                .audioCodec('libmp3lame')
@@ -90,12 +95,13 @@ exports.run = {
                .on('error', reject)
          })
 
+         // Verificar tamaño y enviar el archivo
          const chSize = Func.sizeLimit(fs.statSync(finalPath).size, users.premium ? env.max_upload : env.max_upload_free)
          if (chSize.oversize) {
             fs.unlinkSync(inputPath)
             fs.unlinkSync(rawPath)
             fs.unlinkSync(finalPath)
-            return client.reply(m.chat, `⚠️ El archivo es muy grande. Límite actual: ${users.premium ? env.max_upload : env.max_upload_free} MB`, m)
+            return client.reply(m.chat, `⚠️ El archivo es demasiado grande. Límite actual: ${users.premium ? env.max_upload : env.max_upload_free} MB`, m)
          }
 
          await client.sendFile(m.chat, finalPath, `${title}.mp3`, '', m, {
@@ -103,6 +109,7 @@ exports.run = {
             mimetype: 'audio/mpeg'
          })
 
+         // Limpiar archivos temporales
          [inputPath, rawPath, finalPath].forEach(file => fs.existsSync(file) && fs.unlinkSync(file))
          client.sendReact(m.chat, '✅', m.key)
 
