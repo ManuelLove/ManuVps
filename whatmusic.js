@@ -5,12 +5,12 @@ const ffmpeg = require('fluent-ffmpeg')
 const FormData = require('form-data')
 const { promisify } = require('util')
 const { pipeline } = require('stream')
-const yts = require('yt-search')
 
 const streamPipeline = promisify(pipeline)
 
 exports.run = {
    usage: ['whatmusic'],
+   use: 'query',
    category: 'downloader',
    async: async (m, { client, Func, users, env }) => {
       try {
