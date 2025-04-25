@@ -61,7 +61,10 @@ exports.run = {
          })
 
          const ytRes = await axios.get(`https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(video.url)}&type=audio&quality=128kbps&apikey=russellxz`)
-         const audioURL = ytRes.data.data.url
+if (!ytRes.data || !ytRes.data.data || !ytRes.data.data.url) {
+   throw new Error('No se pudo obtener la URL del audio')
+}
+const audioURL = ytRes.data.data.url
 
          const rawPath = path.join(tmpDir, `${Date.now()}_raw.m4a`)
          const finalPath = path.join(tmpDir, `${Date.now()}_final.mp3`)
