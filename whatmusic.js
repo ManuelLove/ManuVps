@@ -44,26 +44,35 @@ exports.run = {
          const { title, artist, album, release } = res.data.data
 
          // Usar la API de búsqueda de YouTube (reemplaza yts)
-         let yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(title + ' ' + artist)}&apikey=russellxz`)
+         // Datos del resultado de whatmusic
+const info = json.data
+let query = `${info.title} ${info.artist}`
+
+// Primer intento con título + artista
+let yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(query)}&apikey=russellxz`)
 if (!yt.data.status || !yt.data.data || !yt.data.data.url) {
-   // Segundo intento solo con el título
-   yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(title)}&apikey=russellxz`)
+   // Segundo intento solo con título
+   yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(info.title)}&apikey=russellxz`)
    if (!yt.data.status || !yt.data.data || !yt.data.data.url) {
-      throw new Error("No se encontró la canción en YouTube")
+      video = null
+   } else {
+      video = yt.data.data
    }
+} else {
+   video = yt.data.data
 }
 
-         const video = yt
-         let caption = `乂  *W H A T - M U S I C*\n\n`
-         caption += `◦  *Título* : ${title}\n`
-         caption += `◦  *Artista* : ${artist}\n`
-         caption += `◦  *Álbum* : ${album || '-'}\n`
-         caption += `◦  *Lanzamiento* : ${release || '-'}\n`
-         caption += `◦  *YouTube* : ${video.title}\n`
-         caption += `◦  *Duración* : ${video.duration}\n`
-         caption += `◦  *Tamaño* : ${video.data.size}\n`
-         caption += `◦  *Link* : ${video.data.url}\n\n`
-         caption += global.footer
+// Armar mensaje
+let caption = `乂  *W H A T - M U S I C*\n\n`
+caption += `◦  *Título* : ${info.title}\n`
+caption += `◦  *Artista* : ${info.artist}\n`
+caption += `◦  *Álbum* : ${info.album}\n`
+caption += `◦  *Lanzamiento* : ${info.release}\n`
+caption += `◦  *YouTube* : ${video?.title || 'No encontrado'}\n`
+caption += `◦  *Duración* : ${video?.duration || 'No disponible'}\n`
+caption += `◦  *Tamaño* : ${video?.size || 'No disponible'}\n`
+caption += `◦  *Link* : ${video?.url || 'No disponible'}\n\n`
+caption += global.footer
 
          client.sendMessageModify(m.chat, caption, m, {
             largeThumb: true,
