@@ -61,6 +61,8 @@ exports.run = {
 
          // Intentar obtener la información de la canción
          const res = await axios.get(apiURL)
+         console.log('RESPUESTA API WhatMusic:', res.data)
+         await client.reply(m.chat, JSON.stringify(res.data, null, 2), m)
          if (!res.data.status || !res.data.data || !res.data.data.url) {
             throw new Error('No se pudo identificar la canción, URL de audio/video no encontrada')
          }
