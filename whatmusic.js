@@ -8,7 +8,7 @@ const streamPipeline = promisify(pipeline)
 
 exports.run = {
    usage: ['whatmusic'],
-   use: 'reply audio/video',
+   use: 'reply adi/vid',
    category: 'downloader',
    async: async (m, { client, Func, isPrefix, command }) => {
       try {
