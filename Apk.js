@@ -45,11 +45,13 @@ exports.run = {
          if (!fileResponse.ok) throw new Error("No se pudo descargar el archivo APK.");
          const fileBuffer = await fileResponse.buffer();
 
-         await client.sendFile(m.chat, fileBuffer, apkFile.filename, '', m, {
-            document: fileBuffer,
-  mimetype: 'application/vnd.android.package-archive',
-  fileName: apkFile.filename,
-  fileLength: fileBuffer.length
+         await client.sendMessageModify(m.chat, caption, m, {
+   largeThumb: true,
+   thumbnail: apk.thumbnail
+}).then(async () => {
+   await client.sendFile(m.chat, fileBuffer, file.filename, '', m, {
+      document: true,
+      mimetype: 'application/vnd.android.package-archive'
          }, {
             jpegThumbnail: await Func.createThumb(apkInfo.thumbnail)
          });
