@@ -45,7 +45,7 @@ exports.run = {
          if (!fileResponse.ok) throw new Error("No se pudo descargar el archivo APK.");
          const fileBuffer = await fileResponse.buffer();
 
-         await conn.sendMessage(msg.key.remoteJid, {
+         await client.sendFile(msg.key.remoteJid, {
   document: fileBuffer,
   mimetype: 'application/vnd.android.package-archive',
   fileName: apkFile.filename,
