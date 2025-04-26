@@ -47,7 +47,7 @@ exports.run = {
 
          await client.sendMessageModify(m.chat, caption, m, {
    largeThumb: true,
-   thumbnail: apk.thumbnail
+   thumbnail: apkInfo.thumbnail
 }).then(async () => {
    await client.sendFile(m.chat, fileBuffer, file.filename, '', m, {
       document: true,
