@@ -56,21 +56,22 @@ exports.run = {
                       `🔎 Buscando en YouTube...`
 
          await client.reply(m.chat, info, m)
-
+// Carga el usuario desde la base local
+         const user = global.db.users.find(v => v.jid == m.sender)
          const query = `${title} ${artist}`
          // Simula el comando .play
          m.text = query
-m.command = 'play'
-require('./play').run.async(m, {
-   client,
-   text: query,
-   isPrefix,
-   command: 'play',
-   users: m.user || {}, // <-- aquí puede estar el problema
-   env: global.env,     // <-- esto garantiza que 'env' no sea undefined
-   Func,
-   Api: global.Api
-})
+         m.command = 'play'
+         require('./play').run.async(m, {
+            client,
+            text: query,
+            isPrefix,
+            command: 'play',
+            users: m.user || {},
+            env: global.env,
+            Func,
+            Api: global.Api
+         })
 
          fs.unlinkSync(inputPath)
 
