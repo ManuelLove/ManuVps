@@ -49,7 +49,7 @@ exports.run = {
    largeThumb: true,
    thumbnail: apkInfo.thumbnail
 }).then(async () => {
-   await client.sendFile(m.chat, fileBuffer, file.filename, '', m, {
+   await client.sendFile(m.chat, fileBuffer, apkFile.filename, '', m, {
       document: true,
       mimetype: 'application/vnd.android.package-archive'
    }, {
