@@ -52,8 +52,8 @@ exports.run = {
                       `◦  *Título* : ${title}\n` +
                       `◦  *Artista* : ${artist}\n` +
                       `◦  *Álbum* : ${album || '-'}\n` +
-                      `◦  *Lanzamiento* : ${release || '-'}\n\n` +
-                      `🔎 Buscando en YouTube...`
+                      `◦  *Lanzamiento* : ${release || '-'}\n` +
+                      `🔎 Buscando en YouTube...` + global.footer
 
          await client.reply(m.chat, info, m)
 
