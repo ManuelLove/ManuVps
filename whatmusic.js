@@ -44,12 +44,8 @@ exports.run = {
          const { title, artist, album, release } = res.data.data
 
          // Usar la API de búsqueda de YouTube (reemplaza yts)
-         let yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(title + ' ' + artist)}&apikey=russellxz`)
-if (!yt.data.status || !yt.data.data || !yt.data.data.url) {
-   // Segundo intento solo con el título
-   yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(title)}&apikey=russellxz`)
-   if (!yt.data.status || !yt.data.data || !yt.data.data.url) {
-      throw new Error("No se encontró la canción en YouTube")
+         const yt = await Api.neoxr('/play', { q: `${title} ${artist}` })
+         if (!yt.status || !yt.data || !yt.data.url) throw new Error('No se encontró la canción en YouTube')
 
          const video = yt
          let caption = `乂  *W H A T - M U S I C*\n\n`
@@ -57,6 +53,10 @@ if (!yt.data.status || !yt.data.data || !yt.data.data.url) {
          caption += `◦  *Artista* : ${artist}\n`
          caption += `◦  *Álbum* : ${album || '-'}\n`
          caption += `◦  *Lanzamiento* : ${release || '-'}\n`
+         caption += `◦  *YouTube* : ${video.title}\n`
+         caption += `◦  *Duración* : ${video.duration}\n`
+         caption += `◦  *Tamaño* : ${video.data.size}\n`
+         caption += `◦  *Link* : ${video.data.url}\n\n`
          caption += global.footer
 
          client.sendMessageModify(m.chat, caption, m, {
@@ -80,6 +80,7 @@ if (!yt.data.status || !yt.data.data || !yt.data.data.url) {
 
          fs.unlinkSync(inputPath)
          client.sendReact(m.chat, '✅', m.key)
+
       } catch (e) {
          client.reply(m.chat, `❌ *Error:* ${e.message}`, m)
          client.sendReact(m.chat, '❌', m.key)
