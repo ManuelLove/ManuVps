@@ -66,8 +66,8 @@ require('./play').run.async(m, {
    text: query,
    isPrefix,
    command: 'play',
-   users: global.db.users.find(v => v.jid == m.sender), // ✅ así se obtiene el usuario
-   env: global.env,                                     // ✅ así se evita el error del límite
+   users: global.db.users.find(v => v.jid == m.sender),
+   env: global.env || { max_upload: 900, max_upload_free: 50 }, // fallback si env está vacío
    Func,
    Api: global.Api
 })
