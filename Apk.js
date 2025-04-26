@@ -50,7 +50,7 @@ exports.run = {
   mimetype: 'application/vnd.android.package-archive',
   fileName: apkFile.filename,
   fileLength: fileBuffer.length // Agrega esto
-}, { quoted: msg });
+         }, {
             jpegThumbnail: await Func.createThumb(apkInfo.thumbnail)
          });
 
