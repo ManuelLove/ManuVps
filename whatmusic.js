@@ -80,7 +80,6 @@ if (!yt.data.status || !yt.data.data || !yt.data.data.url) {
 
          fs.unlinkSync(inputPath)
          client.sendReact(m.chat, '✅', m.key)
-
       } catch (e) {
          client.reply(m.chat, `❌ *Error:* ${e.message}`, m)
          client.sendReact(m.chat, '❌', m.key)
