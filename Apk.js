@@ -42,26 +42,17 @@ exports.run = {
          });
 
          const fileResponse = await fetch(apkFile.url);
-if (!fileResponse.ok) throw new Error("No se pudo descargar el archivo APK.");
+         if (!fileResponse.ok) throw new Error("No se pudo descargar el archivo APK.");
+         const fileBuffer = await fileResponse.buffer();
 
-// Verificar tipo de archivo
-const contentType = fileResponse.headers.get('content-type') || '';
-if (!contentType.includes('application/vnd.android.package-archive')) {
-   // No es APK real
-   await client.reply(m.chat, `⚠️ El archivo descargado no es un APK válido.\n\n📥 Puedes descargarlo manualmente aquí:\n${apkFile.url}`, m);
-   client.sendReact(m.chat, '⚠️', m.key);
-   return;
-}
-
-const fileBuffer = await fileResponse.buffer();
-
-// enviar como archivo
-await client.sendFile(m.chat, fileBuffer, apkFile.filename, '', m, {
-   document: true,
-   mimetype: 'application/vnd.android.package-archive'
-}, {
-   jpegThumbnail: await Func.createThumb(apkInfo.thumbnail)
-});
+         await conn.sendMessage(msg.key.remoteJid, {
+  document: fileBuffer,
+  mimetype: 'application/vnd.android.package-archive',
+  fileName: apkFile.filename,
+  fileLength: fileBuffer.length // Agrega esto
+}, { quoted: msg });
+            jpegThumbnail: await Func.createThumb(apkInfo.thumbnail)
+         });
 
          client.sendReact(m.chat, '✅', m.key);
 
