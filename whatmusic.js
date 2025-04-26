@@ -44,35 +44,20 @@ exports.run = {
          const { title, artist, album, release } = res.data.data
 
          // Usar la API de búsqueda de YouTube (reemplaza yts)
-         const info = json.data
-const query = `${info.title} ${info.artist}`
-
-// Buscar en YouTube usando la API
-let yt, video
-
-try {
-   yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(query)}&apikey=russellxz`)
+         let yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(title + ' ' + artist)}&apikey=russellxz`)
+if (!yt.data.status || !yt.data.data || !yt.data.data.url) {
+   // Segundo intento solo con el título
+   yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(title)}&apikey=russellxz`)
    if (!yt.data.status || !yt.data.data || !yt.data.data.url) {
-      yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(info.title)}&apikey=russellxz`)
-      video = yt.data.status && yt.data.data ? yt.data.data : null
-   } else {
-      video = yt.data.data
-   }
-} catch (e) {
-   video = null
-}
+      throw new Error("No se encontró la canción en YouTube")
 
-// Armar mensaje final
-let caption = `乂  *W H A T - M U S I C*\n\n`
-caption += `◦  *Título* : ${info.title}\n`
-caption += `◦  *Artista* : ${info.artist}\n`
-caption += `◦  *Álbum* : ${info.album}\n`
-caption += `◦  *Lanzamiento* : ${info.release}\n`
-caption += `◦  *YouTube* : ${video?.title || 'No encontrado'}\n`
-caption += `◦  *Duración* : ${video?.duration || 'No disponible'}\n`
-caption += `◦  *Tamaño* : ${video?.size || 'No disponible'}\n`
-caption += `◦  *Link* : ${video?.url || 'No disponible'}\n\n`
-caption += global.footer
+         const video = yt
+         let caption = `乂  *W H A T - M U S I C*\n\n`
+         caption += `◦  *Título* : ${title}\n`
+         caption += `◦  *Artista* : ${artist}\n`
+         caption += `◦  *Álbum* : ${album || '-'}\n`
+         caption += `◦  *Lanzamiento* : ${release || '-'}\n`
+         caption += global.footer
 
          client.sendMessageModify(m.chat, caption, m, {
             largeThumb: true,
