@@ -16,7 +16,7 @@ exports.run = {
             return client.reply(m.chat, '✳️ Responde a un *audio*, *nota de voz* o *video* para identificar la canción.', m)
          }
 
-         client.sendReact(m.chat, '🎵', m.key)
+         client.sendReact(m.chat, '🔎', m.key)
 
          const tmpDir = path.join(__dirname, '../tmp')
          if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
@@ -53,7 +53,7 @@ exports.run = {
                       `◦  *Artista* : ${artist}\n` +
                       `◦  *Álbum* : ${album || '-'}\n` +
                       `◦  *Lanzamiento* : ${release || '-'}\n` +
-                      `🔎 Buscando en YouTube...` + global.footer
+                      `🔎 Descargando...\n\n` + global.footer
 
          await client.reply(m.chat, info, m)
 
