@@ -1,87 +1,57 @@
 const fs = require('fs')
 const path = require('path')
-const axios = require('axios')
-const FormData = require('form-data')
-const { promisify } = require('util')
-const { pipeline } = require('stream')
-const streamPipeline = promisify(pipeline)
 
 exports.run = {
    usage: ['whatmusic'],
-   use: 'responde a audio/video',
    category: 'downloader',
-   async: async (m, { client, Func, isPrefix, command }) => {
+   async: async (m, {
+      client,
+      isPrefix,
+      command,
+      env,
+      Func,
+      Api
+   }) => {
       try {
-         if (!m.quoted || !/audio|video/.test(m.quoted.mtype)) {
-            return client.reply(m.chat, '✳️ Responde a un *audio*, *nota de voz* o *video* para identificar la canción.', m)
-         }
+         if (!m.quoted || !/audio/.test(m.quoted.mimetype))
+            return client.reply(m.chat, `Responde a un audio con *${isPrefix + command}* para identificar la canción.`, m)
 
-         client.sendReact(m.chat, '🎵', m.key)
-
-         const tmpDir = path.join(__dirname, '../tmp')
-         if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
-
-         const ext = m.quoted.mtype.includes('audio') ? 'mp3' : 'mp4'
-         const inputPath = path.join(tmpDir, `${Date.now()}.${ext}`)
-
+         client.sendReact(m.chat, '🔍', m.key)
+         const mediaPath = path.join(__dirname, '../temp', `${Func.makeId(5)}.mp3`)
          const stream = await m.quoted.download()
-         if (Buffer.isBuffer(stream)) {
-            fs.writeFileSync(inputPath, stream)
-         } else {
-            await streamPipeline(stream, fs.createWriteStream(inputPath))
-         }
+         await Func.saveStreamToFile(stream, mediaPath)
 
-         const form = new FormData()
-         form.append('file', fs.createReadStream(inputPath))
-         form.append('expiry', '3600')
+         const json = await Api.neoxr('/whatmusic', { media: fs.createReadStream(mediaPath) })
+         fs.unlinkSync(mediaPath)
 
-         const upload = await axios.post('https://cdn.russellxz.click/upload.php', form, {
-            headers: form.getHeaders()
-         })
+         if (!json.status) return client.reply(m.chat, Func.jsonFormat(json), m)
 
-         const url = upload?.data?.url
-         if (!url) throw new Error('No se pudo subir el archivo.')
-
-         const api = `https://api.neoxr.eu/api/whatmusic?url=${encodeURIComponent(url)}&apikey=russellxz`
-         const { data } = await axios.get(api)
-
-         if (!data.status || !data.data) throw new Error('No se pudo identificar la canción.')
-
-         const { title, artist, album, release } = data.data
-         const info = `乂  *W H A T - M U S I C*\n\n` +
-                      `◦  *Título* : ${title}\n` +
-                      `◦  *Artista* : ${artist}\n` +
-                      `◦  *Álbum* : ${album || '-'}\n` +
-                      `◦  *Lanzamiento* : ${release || '-'}\n\n` +
-                      `🔎 Buscando en YouTube...`
-
-         await client.reply(m.chat, info, m)
-// Carga el usuario desde la base local
-         const user = global.db.users.find(v => v.jid == m.sender)
+         const { title, artist } = json.data
          const query = `${title} ${artist}`
-         // Simula el comando .play
-         m.text = query
-         m.command = 'play'
+
+         client.reply(m.chat, `✅ *Canción identificada:*\n\n*🎵 ${title}*\n*👤 ${artist}*\n\nBuscando en YouTube...`, m)
+
+         // Carga el usuario desde la base local
+         const user = global.db.users.find(v => v.jid == m.sender)
+
+         // Ejecuta directamente el .play usando los datos identificados
          require('./play').run.async(m, {
             client,
             text: query,
             isPrefix,
             command: 'play',
-            users: m.user || {},
-            env: global.env,
+            users: user,
+            env,
             Func,
-            Api: global.Api
+            Api
          })
 
-         fs.unlinkSync(inputPath)
-
       } catch (e) {
-         client.reply(m.chat, `❌ *Error:* ${e.message}`, m)
-         client.sendReact(m.chat, '❌', m.key)
+         client.reply(m.chat, Func.jsonFormat(e), m)
       }
    },
    error: false,
    restrict: true,
-   cache: false,
+   cache: true,
    location: __filename
 }
