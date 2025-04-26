@@ -53,7 +53,7 @@ exports.run = {
       document: true,
       mimetype: 'application/vnd.android.package-archive'
    }, {
-      jpegThumbnail: await Func.createThumb(apk.thumbnail)
+      jpegThumbnail: await Func.createThumb(apkInfo.thumbnail)
    })
 })
 
