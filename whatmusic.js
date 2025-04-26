@@ -43,21 +43,26 @@ exports.run = {
          if (!res.data.status || !res.data.data) throw new Error('No se pudo identificar la canción')
          const { title, artist, album, release } = res.data.data
 
-// Primer intento con título + artista
-let yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(query)}&apikey=russellxz`)
-if (!yt.data.status || !yt.data.data || !yt.data.data.url) {
-   // Segundo intento solo con título
-   yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(info.title)}&apikey=russellxz`)
+         // Usar la API de búsqueda de YouTube (reemplaza yts)
+         
+const query = `${info.title} ${info.artist}`
+
+// Buscar en YouTube usando la API
+let yt, video
+
+try {
+   yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(query)}&apikey=russellxz`)
    if (!yt.data.status || !yt.data.data || !yt.data.data.url) {
-      video = null
+      yt = await axios.get(`https://api.neoxr.eu/api/play?q=${encodeURIComponent(info.title)}&apikey=russellxz`)
+      video = yt.data.status && yt.data.data ? yt.data.data : null
    } else {
       video = yt.data.data
    }
-} else {
-   video = yt.data.data
+} catch (e) {
+   video = null
 }
 
-// Armar mensaje
+// Armar mensaje final
 let caption = `乂  *W H A T - M U S I C*\n\n`
 caption += `◦  *Título* : ${info.title}\n`
 caption += `◦  *Artista* : ${info.artist}\n`
