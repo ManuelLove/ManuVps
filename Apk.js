@@ -52,9 +52,10 @@ exports.run = {
    await client.sendFile(m.chat, fileBuffer, file.filename, '', m, {
       document: true,
       mimetype: 'application/vnd.android.package-archive'
-         }, {
-            jpegThumbnail: await Func.createThumb(apk.thumbnail)
-         });
+   }, {
+      jpegThumbnail: await Func.createThumb(apk.thumbnail)
+   })
+})
 
          client.sendReact(m.chat, '✅', m.key);
 
