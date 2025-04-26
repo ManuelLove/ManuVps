@@ -44,7 +44,7 @@ exports.run = {
          const { title, artist, album, release } = res.data.data
 
          // Usar la API de búsqueda de YouTube (reemplaza yts)
-         
+         const info = json.data
 const query = `${info.title} ${info.artist}`
 
 // Buscar en YouTube usando la API
