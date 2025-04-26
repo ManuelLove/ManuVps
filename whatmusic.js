@@ -57,7 +57,7 @@ exports.run = {
 
          await client.reply(m.chat, info, m)
 
-         const query = `${json.data.title} ${json.data.artist}`
+         const query = `${title} ${artist}`
 m.text = query
 m.command = 'play'
 
