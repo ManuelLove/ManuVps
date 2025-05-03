@@ -1,25 +1,12 @@
 const { Component } = require('@neoxr/wb')
 const { Function: Func } = new Component
+const fs = require('fs')
 const mime = require('mime-types').lookup
+const { proto, generateWAMessageFromContent, prepareWAMessageMedia } = require('@adiwajshing/baileys')
 
 module.exports = client => {
-   /**
-    * Sends a document with optional customization such as caption, file name, mime type, etc.
-    * @param {string} jid - The recipient's JID (WhatsApp ID).
-    * @param {string} text - The caption or text to include with the document.
-    * @param {object} [quoted] - The message being replied to (optional).
-    * @param {object} [opts] - Optional settings for document customization.
-    * @param {string} [opts.mime] - The mime type of the document (optional).
-    * @param {number} [opts.pages] - The number of pages in the document (optional).
-    * @param {string} [opts.thumbnail] - URL for the thumbnail image (optional).
-    * @param {string} [opts.fname] - The file name to be used for the document (optional).
-    * @param {number} [opts.fsize] - The file size of the document in bytes (optional).
-    * @returns {Promise} - A promise that resolves once the document has been sent.
-    */
    client.sendFDoc = async (jid, text, quoted, opts = {}) => {
-      // Send presence update indicating that the bot is composing a message
       await client.sendPresenceUpdate('composing', jid)
-
       return client.sendMessage(jid, {
          document: {
             url: 'https://iili.io/His5lBp.jpg'
@@ -39,14 +26,58 @@ module.exports = client => {
       })
    }
 
-   /**
-    * Gets the name associated with a user's JID from the global database.
-    * @param {string} jid - The JID (WhatsApp ID) of the user.
-    * @returns {string|null} - The name of the user, or null if the user is not found.
-    */
    client.getName = jid => {
       const isFound = global.db.users.find(v => v.jid === client.decodeJid(jid))
       if (!isFound) return null
       return isFound.name
    }
+
+   client.sendCarousel = async (jid, contents = [], quoted = {}, opts = {}) => {
+      let cards = []
+      for (const v of contents) {
+         var file = await Func.getFile(v.header.imageMessage)
+         var parse = await prepareWAMessageMedia({
+            image: {
+               url: file.file
+            },
+         }, {
+            upload: client.waUploadToServer
+         })
+         cards.push({
+            header: {
+               imageMessage: parse.imageMessage,
+               hasMediaAttachment: true,
+            },
+            body: v.body,
+            nativeFlowMessage: v.nativeFlowMessage
+         })
+      }
+      
+      const message = generateWAMessageFromContent(jid, {
+         viewOnceMessage: {
+            message: {
+               interactiveMessage: {
+                  body: {
+                     text: opts.content ? opts.content : ''
+                  },
+                  carouselMessage: {
+                     cards,
+                     messageVersion: 1
+                  },
+                  footer: {
+                     text: opts.footer ? opts.footer : ''
+                  }
+               }
+            }
+         }
+      }, {
+         userJid: client.user.jid, 
+         quoted
+      })
+      client.relayMessage(jid, message['message'], {
+         messageId: message.key.id
+      })
+      return message
+   }
 }
+
